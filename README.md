@@ -1,6 +1,8 @@
 # Spring-2026
 CSCI 3340-04
 
+Samuel Gonzalez, Andres Cazares, Pablo Magana
+
 Project Desc:
 
 The goal of our application is to create a social matchmaking website that is based on / out of the UTRGV Game Room. Users will be able to create their own profile and interact with others who share interests in certain games. Aditionally, they'll be able to schedule / view meeting times corresponding to the time of day, genre of game, etc. (Will update the description as we progress further in development.)
