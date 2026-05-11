@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Events</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card-bg: #161b22;
+            --primary: #00ffcc;
+            --primary-glow: rgba(0, 255, 204, 0.4);
+            --text-main: #e6edf3;
+            --text-muted: #7d8590;
+            --cell-bg: #21262d;
+            --border: #30363d;
+        }
+
+        body.light-mode {
+            --bg: #f6f8fa;
+            --card-bg: #ffffff;
+            --primary: #0969da;
+            --primary-glow: rgba(9, 105, 218, 0.2);
+            --text-main: #1f2328;
+            --text-muted: #57606a;
+            --cell-bg: #f0f2f5;
+            --border: #d0d7de;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            align-items: center;
+            background: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            padding: 60px 0 50px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 90%;
+            width: 680px;
+        }
+
+        .back-nav {
+            margin-bottom: 20px;
+        }
+
+        .back-nav a {
+            color: var(--text-muted);
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-nav a:hover {
+            color: var(--primary);
+        }
+
+        h1 {
+            color: var(--primary);
+            letter-spacing: 2px;
+            margin: 0 0 8px;
+            text-align: center;
+            text-shadow: 0 0 12px var(--primary-glow);
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin: 0 0 34px;
+            text-align: center;
+        }
+
+        .event-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .event-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .event-card:hover {
+            border-color: var(--primary);
+            box-shadow: -5px 0 15px var(--primary-glow);
+            transform: translateX(5px);
+        }
+
+        .event-date {
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .event-title {
+            color: var(--text-main);
+            display: block;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 6px 0;
+        }
+
+        .event-description,
+        .event-meta {
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 8px 0 0;
+        }
+
+        .stream-label {
+            color: #c9a7ff;
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        .card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            color: var(--primary);
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+            padding: 8px 14px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+            color: var(--bg);
+        }
+
+        .cancel-btn {
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        .empty-state {
+            background: var(--cell-bg);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 40px;
+            text-align: center;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding-top: 35px;
+            }
+
+            .card-actions .btn {
+                text-align: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="back-nav">
+            <a href="{% url 'home' %}">&larr; Back to Lobby</a>
+        </div>
+
+        <h1>My Events</h1>
+        <p class="subtitle">Events you registered interest in.</p>
+
+        <div class="event-list">
+            {% for event in registered_events %}
+                <div class="event-card">
+                    <span class="event-date">
+                        {{ event.date }}{% if event.start_time %} at {{ event.start_time|time:"g:i A" }}{% endif %}
+                    </span>
+                    <span class="event-title">{{ event.title }}</span>
+                    {% if event.twitch_url %}
+                        <span class="stream-label">
+                            {% if event.twitch_live_status %}Live on Twitch{% else %}Twitch stream{% endif %}
+                        </span>
+                    {% endif %}
+                    {% if event.description %}
+                        <p class="event-description">{{ event.description }}</p>
+                    {% endif %}
+                    <p class="event-meta">{{ event.attendees.count }} interested</p>
+
+                    <div class="card-actions">
+                        <a class="btn" href="{% url 'daily-events' event.date.year event.date.month event.date.day %}">View Details</a>
+                        <form method="post" action="{% url 'toggle_event_registration' event.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn cancel-btn">Cancel Registration</button>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-state">
+                    You have not registered for any events yet.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+    </script>
+</body>
+</html>

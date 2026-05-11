@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Gaming Events Dashboard</title>
+    <title>RGV Gaming</title>
     <style>
         :root { 
             /* Same Dark Gaming Palette as the Calendar */
@@ -139,6 +139,11 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+        .interest-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
         
         /* The smaller button inside the event card */
         .view-btn {
@@ -196,7 +201,7 @@
 
 <div class="dashboard-container">
     
-    <h1>CSCI 3340</h1>
+    <h1>RGV Gaming</h1>
     
     {% if user.is_authenticated %}
         <div class="welcome-text">Player 1: <strong>{{ user.username }}</strong> online</div>
@@ -205,6 +210,8 @@
             <a class="btn" href="{% url 'calendar-specific' year=2026 month=4 %}">Full Calendar</a>
             
             <a class="btn" href="{% url 'profile' %}">My Loadout</a> 
+
+            <a class="btn" href="{% url 'my_events' %}">My Events</a>
 
             {% if can_create_events %}
                 <a class="btn" href="{% url 'create_event' %}">Create Event</a>
@@ -238,6 +245,7 @@
                             {% if event.twitch_live_status %}Live on Twitch{% else %}Twitch stream{% endif %}
                         </span>
                     {% endif %}
+                    <span class="interest-label">{{ event.attendees.count }} interested</span>
                 </div>
                 <a class="view-btn" href="/calendar/{{ event.date.year }}/{{ event.date.month }}/{{ event.date.day }}/">
                     View Details

@@ -103,11 +103,96 @@
             color: var(--bg);
             box-shadow: 0 0 14px var(--primary-glow);
         }
+
+        .register-form {
+            display: inline-block;
+            margin: 12px 0 0;
+        }
+
+        .register-btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            color: var(--primary);
+            cursor: pointer;
+            font: inherit;
+            font-weight: 600;
+            padding: 8px 14px;
+            transition: all 0.3s ease;
+        }
+
+        .register-btn:hover {
+            background: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 0 14px var(--primary-glow);
+        }
+
+        .registered-btn {
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        .attendee-panel {
+            background: var(--cell-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-top: 14px;
+            padding: 12px;
+        }
+
+        .attendee-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin: 0 0 10px;
+            text-transform: uppercase;
+        }
+
+        .attendee-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .attendee-pill {
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--text-main);
+            display: inline-block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 10px;
+        }
+
+        .messages {
+            list-style: none;
+            margin: 0 0 18px;
+            padding: 0;
+        }
+
+        .messages li {
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            color: var(--primary);
+            margin-bottom: 8px;
+            padding: 10px 12px;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
         <div class="event-actions">
             <a href="javascript:history.back()" class="back-btn">&larr; Back to Calendar</a>
             {% if can_create_events %}
@@ -150,6 +235,32 @@
                         </div>
                         <a class="watch-btn" href="{{ event.twitch_url }}" target="_blank" rel="noopener noreferrer">Watch on Twitch</a>
                     {% endif %}
+
+                    {% if user.is_authenticated %}
+                        <form class="register-form" method="post" action="{% url 'toggle_event_registration' event.id %}">
+                            {% csrf_token %}
+                            {% if user in event.attendees.all %}
+                                <button type="submit" class="register-btn registered-btn">Cancel Registration</button>
+                            {% else %}
+                                <button type="submit" class="register-btn">Register Interest</button>
+                            {% endif %}
+                        </form>
+                    {% else %}
+                        <p class="event-meta">Log in to register interest in this event.</p>
+                    {% endif %}
+
+                    <div class="attendee-panel">
+                        <p class="attendee-title">Interested Players: {{ event.attendees.count }}</p>
+                        {% if event.attendees.all %}
+                            <div class="attendee-list">
+                                {% for attendee in event.attendees.all %}
+                                    <span class="attendee-pill">{{ attendee.username }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="event-meta">No one has registered yet.</p>
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
         {% else %}

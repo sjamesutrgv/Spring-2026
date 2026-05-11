@@ -47,6 +47,11 @@ class Event(models.Model):
         null=True,
         related_name='created_events',
     )
+    attendees = models.ManyToManyField(
+        User,
+        blank=True,
+        related_name='registered_events',
+    )
 
     def __str__(self):
         return self.title
