@@ -1,5 +1,5 @@
 # mycalendar/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from datetime import datetime, date, timedelta
@@ -95,6 +95,23 @@ def daily_events(request, year, month, day):
     }
     return render(request, 'mycalendar/events.html', context)
 
+
+@login_required
+def toggle_event_registration(request, event_id):
+    if request.method != 'POST':
+        return redirect('calendar-home')
+
+    event = get_object_or_404(Event, id=event_id)
+
+    if event.attendees.filter(id=request.user.id).exists():
+        event.attendees.remove(request.user)
+        messages.success(request, f'You are no longer registered for {event.title}.')
+    else:
+        event.attendees.add(request.user)
+        messages.success(request, f'You are registered for {event.title}.')
+
+    return redirect('daily-events', year=event.date.year, month=event.date.month, day=event.date.day)
+
 def signup(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
@@ -122,6 +139,16 @@ def home(request):
         'can_create_events': request.user.is_authenticated,
     }
     return render(request, 'home.html', context)
+
+
+@login_required
+def my_events(request):
+    registered_events = request.user.registered_events.order_by('date', 'start_time', 'title')
+
+    context = {
+        'registered_events': registered_events,
+    }
+    return render(request, 'mycalendar/my_events.html', context)
 
 
 @login_required
